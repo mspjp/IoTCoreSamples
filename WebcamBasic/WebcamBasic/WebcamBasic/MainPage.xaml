@@ -8,6 +8,7 @@
     mc:Ignorable="d" Height="498.599" Width="766.369">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <!-- Webカメラからの画像を表示するコントロール -->
         <CaptureElement x:Name="captureElement" Width="600" Height="400">
         </CaptureElement>
     </Grid>

@@ -17,15 +17,14 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409 を参照してください
-
 namespace WebcamBasic
 {
     /// <summary>
-    /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+    /// マイクとWebカメラのCapabilityをマニフェストファイルから設定する
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        //Webカメラのキャプチャをするクラス
         MediaCapture _mediaCapture;
         MediaCaptureInitializationSettings setting;
 
@@ -33,37 +32,44 @@ namespace WebcamBasic
         {
             this.InitializeComponent();
 
+            //ページがロードされたら
             this.Loaded += async(s, e) =>
             {
                 await InitializeMediaCapture();
             };
 
+            //アプリが一時停止したら
             Application.Current.Suspending += async (s, e) =>
             {
+                //Webカメラのキャプチャを止める
                 await _mediaCapture.StopPreviewAsync();
                 _mediaCapture.Dispose();
             };
 
+            //アプリが再開したら
             Application.Current.Resuming += async (s, e) =>
             {
+                //サイドWebカメラを起動する
                 await InitializeMediaCapture();
             };
         }
 
         private async Task InitializeMediaCapture()
         {
-            
+            //UIスレッドで実行する
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
                 try
                 {
+                    //デバイス一覧からビデオキャプチャーができるデバイスを取得する
                     DeviceInformationCollection devices = await DeviceInformation.FindAllAsync(DeviceClass.VideoCapture);
                     DeviceInformation cameraId = devices.ElementAt(0);
+                    //設定に取得したカメラデバイスのIDを登録する
                     setting = new MediaCaptureInitializationSettings();
                     setting.VideoDeviceId = cameraId.Id;
 
+                    //Webカメラのキャプチャーを起動する
                     _mediaCapture = new MediaCapture();
-
                     await _mediaCapture.InitializeAsync(setting);
                     captureElement.Source = _mediaCapture;
                     await _mediaCapture.StartPreviewAsync();
